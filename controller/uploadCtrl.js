@@ -1,6 +1,5 @@
 const fs = require("fs");
 const asyncHandler = require("express-async-handler");
-
 const {
   cloudinaryUploadImg,
   cloudinaryDeleteImg,
@@ -15,16 +14,11 @@ const uploadImages = asyncHandler(async (req, res) => {
     for (const file of files) {
       const { path } = file;
       const newpath = await uploader(path);
-
-      urls.push({
-        url: newpath.secure_url,
-        public_id: newpath.public_id,
-      });
-
+      urls.push(newpath);
       fs.unlinkSync(path);
     }
 
-    res.json(urls);
+    return res.json(urls);
   } catch (error) {
     throw new Error(error);
   }
@@ -33,7 +27,7 @@ const uploadImages = asyncHandler(async (req, res) => {
 const deleteImages = asyncHandler(async (req, res) => {
   const { id } = req.params;
   try {
-    await cloudinaryDeleteImg(id, "images");
+    const deleted = cloudinaryDeleteImg(id, "images");
     res.json({ message: "Deleted" });
   } catch (error) {
     throw new Error(error);
